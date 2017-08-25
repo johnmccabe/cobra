@@ -304,7 +304,7 @@ func writeCommands(buf *bytes.Buffer, cmd *Command) {
 	buf.WriteString("\n")
 }
 
-func writeFlagHandler(buf *bytes.Buffer, name string, annotations map[string][]string) {
+func writeFlagHandler(buf *bytes.Buffer, name string, annotations map[string][]string, cmd *Command) {
 	for key, value := range annotations {
 		switch key {
 		case BashCompFilenameExt:
@@ -312,7 +312,7 @@ func writeFlagHandler(buf *bytes.Buffer, name string, annotations map[string][]s
 
 			var ext string
 			if len(value) > 0 {
-				ext = fmt.Sprintf("__%s_handle_filename_extension_flag ", name) + strings.Join(value, "|")
+				ext = fmt.Sprintf("__%s_handle_filename_extension_flag ", cmd.Name()) + strings.Join(value, "|")
 			} else {
 				ext = "_filedir"
 			}
@@ -330,7 +330,7 @@ func writeFlagHandler(buf *bytes.Buffer, name string, annotations map[string][]s
 
 			var ext string
 			if len(value) == 1 {
-				ext = fmt.Sprintf("__%s_handle_subdirs_in_dir_flag ", name) + value[0]
+				ext = fmt.Sprintf("__%s_handle_subdirs_in_dir_flag ", cmd.Name()) + value[0]
 			} else {
 				ext = "_filedir -d"
 			}
@@ -339,7 +339,7 @@ func writeFlagHandler(buf *bytes.Buffer, name string, annotations map[string][]s
 	}
 }
 
-func writeShortFlag(buf *bytes.Buffer, flag *pflag.Flag) {
+func writeShortFlag(buf *bytes.Buffer, flag *pflag.Flag, cmd *Command) {
 	name := flag.Shorthand
 	format := "    "
 	if len(flag.NoOptDefVal) == 0 {
@@ -347,10 +347,10 @@ func writeShortFlag(buf *bytes.Buffer, flag *pflag.Flag) {
 	}
 	format += "flags+=(\"-%s\")\n"
 	buf.WriteString(fmt.Sprintf(format, name))
-	writeFlagHandler(buf, "-"+name, flag.Annotations)
+	writeFlagHandler(buf, "-"+name, flag.Annotations, cmd)
 }
 
-func writeFlag(buf *bytes.Buffer, flag *pflag.Flag) {
+func writeFlag(buf *bytes.Buffer, flag *pflag.Flag, cmd *Command) {
 	name := flag.Name
 	format := "    flags+=(\"--%s"
 	if len(flag.NoOptDefVal) == 0 {
@@ -358,7 +358,7 @@ func writeFlag(buf *bytes.Buffer, flag *pflag.Flag) {
 	}
 	format += "\")\n"
 	buf.WriteString(fmt.Sprintf(format, name))
-	writeFlagHandler(buf, "--"+name, flag.Annotations)
+	writeFlagHandler(buf, "--"+name, flag.Annotations, cmd)
 }
 
 func writeLocalNonPersistentFlag(buf *bytes.Buffer, flag *pflag.Flag) {
@@ -384,9 +384,9 @@ func writeFlags(buf *bytes.Buffer, cmd *Command) {
 		if nonCompletableFlag(flag) {
 			return
 		}
-		writeFlag(buf, flag)
+		writeFlag(buf, flag, cmd)
 		if len(flag.Shorthand) > 0 {
-			writeShortFlag(buf, flag)
+			writeShortFlag(buf, flag, cmd)
 		}
 		if localNonPersistentFlags.Lookup(flag.Name) != nil {
 			writeLocalNonPersistentFlag(buf, flag)
@@ -396,9 +396,9 @@ func writeFlags(buf *bytes.Buffer, cmd *Command) {
 		if nonCompletableFlag(flag) {
 			return
 		}
-		writeFlag(buf, flag)
+		writeFlag(buf, flag, cmd)
 		if len(flag.Shorthand) > 0 {
-			writeShortFlag(buf, flag)
+			writeShortFlag(buf, flag, cmd)
 		}
 	})
 
