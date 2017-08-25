@@ -174,13 +174,17 @@ __%[1]s_handle_flag()
       commands=()
     fi
 
-	# keep flag value with flagname as flaghash
-	if [ -n "${flagvalue}" ] ; then
-		flaghash[${flagname}]=${flagvalue}
-	elif [ -n "${words[ $((c+1)) ]}" ] ; then
-		flaghash[${flagname}]=${words[ $((c+1)) ]}
-	else
-		flaghash[${flagname}]="true" # pad "true" for bool flag 
+	# keep flag value with flagname as flaghash, associative arrays only supported
+	# with Bash version 4 onwards
+	if ((BASH_VERSINFO[0] > 3))
+	then 
+		if [ -n "${flagvalue}" ] ; then
+			flaghash[${flagname}]=${flagvalue}
+		elif [ -n "${words[ $((c+1)) ]}" ] ; then
+			flaghash[${flagname}]=${words[ $((c+1)) ]}
+		else
+			flaghash[${flagname}]="true" # pad "true" for bool flag 
+		fi
 	fi
 
     # skip the argument to a two word flag
