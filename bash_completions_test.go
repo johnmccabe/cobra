@@ -119,11 +119,11 @@ func TestBashCompletions(t *testing.T) {
 	// check for filename extension flags
 	check(t, str, `must_have_one_noun+=("three")`)
 	// check for filename extention flags
-	check(t, str, `flags_completion+=("__handle_filename_extension_flag json|yaml|yml")`)
+	check(t, str, `flags_completion+=("__cobra-test_handle_filename_extension_flag json|yaml|yml")`)
 	// check for custom flags
 	check(t, str, `flags_completion+=("__complete_custom")`)
 	// check for subdirs_in_dir flags
-	check(t, str, `flags_completion+=("__handle_subdirs_in_dir_flag themes")`)
+	check(t, str, `flags_completion+=("__cobra-test_handle_subdirs_in_dir_flag themes")`)
 
 	checkOmit(t, str, cmdDeprecated.Name())
 
